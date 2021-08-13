@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using RestWithASPNETUdemy.Model;
+using RestWithASPNETUdemy.Model.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,53 +15,48 @@ namespace RestWithASPNETUdemy.Controllers
     {
 
         private readonly ILogger<PersonController> _logger;
+        private IPersonService _personService;
 
-        public PersonController(ILogger<PersonController> logger)
+        public PersonController(ILogger<PersonController> logger, IPersonService personService)
         {
             _logger = logger;
+            _personService = personService;
         }
 
-        [HttpGet("{operacao}/{firstnumber}/{secondnumber}")]
-        public IActionResult Get(string operacao, string firstnumber, string secondnumber)
-        {
-            string resultado;
-            if (IsNumeric(firstnumber) && IsNumeric(secondnumber))
-            {
-                switch (operacao)
-                {
-                    case "soma":
-                        resultado = (Convert.ToDecimal(firstnumber) + Convert.ToDecimal(secondnumber)).ToString();
-                        return Ok(resultado);
+        [HttpGet("")]
+        public IActionResult Get()
+        {           
 
-                    case "sub":
-                        resultado = (Convert.ToDecimal(firstnumber) - Convert.ToDecimal(secondnumber)).ToString();
-                        return Ok(resultado);
-
-                    case "mult":
-                        resultado = (Convert.ToDecimal(firstnumber) * Convert.ToDecimal(secondnumber)).ToString();
-                        return Ok(resultado);
-
-                    case "div":
-                        resultado = (Convert.ToDecimal(firstnumber) / Convert.ToDecimal(secondnumber)).ToString();
-                        return Ok(resultado);
-
-                    case "media":
-                        resultado = ((Convert.ToDecimal(firstnumber) + Convert.ToDecimal(secondnumber))/2).ToString();
-                        return Ok(resultado);
-
-                    case "pot":
-                        resultado = Math.Pow(Convert.ToDouble(firstnumber), Convert.ToDouble(secondnumber)).ToString();
-                        return Ok(secondnumber);
-                }
-            }
-
-            return BadRequest("Invalid Input");
+            return Ok(_personService.FindAll());
         }
-
-        private bool IsNumeric(string strNumber)
+        
+        [HttpGet("{id}")]
+        public IActionResult Get(long id)
         {
-            double number;
-            return double.TryParse(strNumber, out number);
+            var person = _personService.FindByID(id);
+            if (person == null) return NotFound();
+            return Ok(person);
+        }
+        
+        [HttpPost]
+        public IActionResult Post([FromBody] Person person)
+        {            
+            if (person == null) return BadRequest();
+            return Ok(_personService.Create(person));
+        }
+        
+        [HttpPut]
+        public IActionResult Put([FromBody] Person person)
+        {            
+            if (person == null) return BadRequest();
+            return Ok(_personService.Update(person));
+        }
+        
+        [HttpDelete("{id}")]
+        public IActionResult Delete(long id)
+        {
+            _personService.Delete(id);
+            return NoContent();
         }
     }
 
