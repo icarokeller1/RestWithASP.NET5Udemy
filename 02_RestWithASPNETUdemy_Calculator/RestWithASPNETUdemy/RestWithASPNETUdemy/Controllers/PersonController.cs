@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace RestWithASPNETUdemy.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class PersonController : ControllerBase
     {
 
@@ -23,7 +23,7 @@ namespace RestWithASPNETUdemy.Controllers
             _personService = personService;
         }
 
-        [HttpGet("")]
+        [HttpGet]
         public IActionResult Get()
         {           
 
